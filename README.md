@@ -1,2 +1,3 @@
 # UR5e Voice Control
-Create a ROS2 workspace
+Operation
+1. Create a ROS2 workspace
