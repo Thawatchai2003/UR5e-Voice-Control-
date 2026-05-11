@@ -151,7 +151,7 @@ Clone the UR5e Voice Control package from GitHub into the workspace source folde
 
 ### Command
 ```bash
-cd ~/ur5e_ws/src
+cd ~/ur5e_ws
 
 git clone https://github.com/your_username/ur5e_voice_control.git
 ```
