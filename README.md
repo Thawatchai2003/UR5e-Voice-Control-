@@ -32,9 +32,56 @@ mkdir -p ~/ur5e_ws/src
 
 ---
 
-## 2. Go to Workspace Folder
+## 2. Go to Source Folder
 
-Move to the workspace directory.
+Move to the source folder inside the workspace.
+
+### Command
+```bash
+cd ~/ur5e_ws/src
+```
+
+### Description
+- `cd` : Change directory
+- `~/ur5e_ws/src` : Source folder location for ROS2 packages
+
+---
+
+## Option A : Clone Existing Repository
+
+Clone the UR5e Voice Control package from GitHub.
+
+### Command
+```bash
+git clone https://github.com/your_username/ur5e_voice_control.git
+```
+
+### Description
+- `git clone` : Download repository from GitHub
+- `ur5e_voice_control.git` : Voice control package repository
+
+---
+
+## Option B : Create a New ROS2 Package
+
+Create a new ROS2 Python package manually.
+
+### Command
+```bash
+ros2 pkg create ur5e_voice_control --build-type ament_python --dependencies rclpy std_msgs geometry_msgs
+```
+
+### Description
+- `ros2 pkg create` : Create a new ROS2 package
+- `ur5e_voice_control` : Package name
+- `--build-type ament_python` : Create Python-based ROS2 package
+- `--dependencies` : Add required ROS2 dependencies
+
+---
+
+## 3. Go to Workspace Folder
+
+Move back to the workspace directory.
 
 ### Command
 ```bash
@@ -42,12 +89,11 @@ cd ~/ur5e_ws
 ```
 
 ### Description
-- `cd` : Change directory
-- `~/ur5e_ws` : Workspace location
+- `~/ur5e_ws` : Main ROS2 workspace location
 
 ---
 
-## 3. Build Workspace
+## 4. Build Workspace
 
 Build the ROS2 workspace.
 
@@ -61,7 +107,7 @@ colcon build
 
 ---
 
-## 4. Source Workspace
+## 5. Source Workspace
 
 Load the ROS2 workspace environment.
 
@@ -73,20 +119,6 @@ source install/setup.bash
 ### Description
 - `source` : Load environment variables
 - `install/setup.bash` : Setup file generated after build
-
----
-
-## 5. Go to Source Folder
-
-Move to the source folder.
-
-### Command
-```bash
-cd ~/ur5e_ws/src
-```
-
-### Description
-- Used for cloning or adding ROS2 packages into the workspace
 
 ---
 
@@ -126,7 +158,6 @@ Install all required dependencies.
 
 ### Command
 ```bash
-cd ~/ur5e_ws
 rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 ```
@@ -220,32 +251,6 @@ ros2 run ur5e_voice_control voice_command_node
 
 ---
 
-# ROS2 Useful Commands
-
-## Show ROS2 Topics
-
-### Command
-```bash
-ros2 topic list
-```
-
-### Description
-- Display all active ROS2 topics
-
----
-
-## Monitor Joint States
-
-### Command
-```bash
-ros2 topic echo /joint_states
-```
-
-### Description
-- Display real-time joint state information
-
----
-
 # Project Structure
 
 ```bash
@@ -259,9 +264,3 @@ ur5e_ws/
  ├── install/
  └── log/
 ```
-
----
-
-# Author
-
-UR5e Voice Control Project using ROS2 and Speech Recognition.
