@@ -147,13 +147,14 @@ mkdir -p UR5e_ws/src
 
 ## 2. Clone Repository into Source Folder
 
-Move to the source folder and clone the Zimmer_HRC_03 package repository from GitHub.
+Move to the source folder and clone the required Zimmer_HRC_03 repositories from GitHub.
 
 ### Command
 ```bash
 cd ur5e_ws/src
 
 git clone https://github.com/Thawatchai2003/Zimmer_HRC_03.git
+
 git clone https://github.com/Thawatchai2003/Zimmer_HRC_03_configured.git
 ```
 
@@ -161,3 +162,4 @@ git clone https://github.com/Thawatchai2003/Zimmer_HRC_03_configured.git
 - `cd ur5e_ws/src` : Move to the ROS2 source folder
 - `git clone` : Download repository from GitHub
 - `Zimmer_HRC_03.git` : ROS2 package repository for Zimmer HRC gripper control
+- `Zimmer_HRC_03_configured.git` : Configured ROS2 package for Zimmer HRC system setup
