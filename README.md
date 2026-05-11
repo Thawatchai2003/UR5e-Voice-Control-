@@ -142,3 +142,19 @@ mkdir -p ur5e_ws/src
 - `mkdir` : Create a new folder
 - `-p` : Create nested folders automatically
 - `~/ur5e_ws/src` : Workspace and source folder location
+
+## 2. Clone Repository into Source Folder
+
+Move to the source folder and clone the UR5e Voice Control repository.
+
+### Command
+```bash
+cd ur5e_ws/src
+
+git clone https://github.com/your_username/ur5e_voice_control.git
+```
+
+### Description
+- `cd ur5e_ws/src` : Move to the ROS2 source folder
+- `git clone` : Download repository from GitHub
+- `ur5e_voice_control.git` : UR5e Voice Control repository
