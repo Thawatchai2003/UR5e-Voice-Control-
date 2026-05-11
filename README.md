@@ -129,20 +129,16 @@ source ~/.bashrc
 
 # Workspace Installation
 
-## 1. Create a ROS2 Package
+## 1. Create a ROS2 Workspace
 
-Create a new ROS2 Python package for the UR5e Voice Control project.
+Create a ROS2 workspace for the UR5e Voice Control project.
 
 ### Command
 ```bash
-ros2 pkg create ur5e_voice_control --build-type ament_python --dependencies rclpy std_msgs geometry_msgs
+mkdir -p ~/ur5e_ws/src
 ```
 
 ### Description
-- `ros2 pkg create` : Create a new ROS2 package
-- `ur5e_voice_control` : Package name
-- `--build-type ament_python` : Create a Python-based ROS2 package
-- `--dependencies` : Add required ROS2 dependencies
-- `rclpy` : ROS2 Python client library
-- `std_msgs` : Standard ROS2 message types
-- `geometry_msgs` : Message types for robot movement and position
+- `mkdir` : Create a new folder
+- `-p` : Create nested folders automatically
+- `~/ur5e_ws/src` : Workspace and source folder location
