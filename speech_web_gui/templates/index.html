@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speech Web GUI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0f14;
+      color: #e8eef6;
+      padding: 16px;
+    }
+    .card {
+      background: #121a26;
+      border: 1px solid #1a2433;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    h1, h2 {
+      margin-top: 0;
+    }
+    .status {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .result {
+      color: #6ee7ff;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .last {
+      color: #8b96a8;
+      font-size: 14px;
+    }
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .grid5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #1b2a3f;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>📱 Speech Web GUI</h1>
+
+  <div class="card">
+    <div class="status" id="status">🟦 Idle</div>
+    <div class="result" id="result">Text: (none yet)</div>
+    <div class="last" id="last">Last: (none)</div>
+  </div>
+
+  <div class="card">
+    <h2>Quick Actions</h2>
+    <div class="grid2">
+      <button onclick="sendCmd('TEXT:หมุนซ้าย')">↩️ หมุนซ้าย</button>
+      <button onclick="sendCmd('TEXT:หมุนขวา')">↪️ หมุนขวา</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Robot Actions</h2>
+
+    <div class="grid5" style="margin-bottom: 10px;">
+      <button onclick="sendCmd('POS:1')">📍1</button>
+      <button onclick="sendCmd('POS:2')">📍2</button>
+      <button onclick="sendCmd('POS:3')">📍3</button>
+      <button onclick="sendCmd('POS:4')">📍4</button>
+      <button onclick="sendCmd('POS:5')">📍5</button>
+    </div>
+
+    <div class="grid2" style="margin-bottom: 10px;">
+      <button onclick="sendCmd('TEXT:หยิบของ')">🤏 หยิบของ</button>
+      <button onclick="sendCmd('TEXT:วางของ')">📦 วางของ</button>
+    </div>
+
+    <div class="grid2" style="margin-bottom: 10px;">
+      <button onclick="sendCmd('TEXT:ขยับหน้า')">⬆️ ขยับหน้า</button>
+      <button onclick="sendCmd('TEXT:ขยับหลัง')">⬇️ ขยับหลัง</button>
+    </div>
+
+    <div class="grid2" style="margin-bottom: 10px;">
+      <button onclick="sendCmd('TEXT:ขยับซ้าย')">⬅️ ขยับซ้าย</button>
+      <button onclick="sendCmd('TEXT:ขยับขวา')">➡️ ขยับขวา</button>
+    </div>
+
+    <div class="grid2">
+      <button onclick="sendCmd('TEXT:เลื่อนขึ้น')">🔼 เลื่อนขึ้น</button>
+      <button onclick="sendCmd('TEXT:เลื่อนลง')">🔽 เลื่อนลง</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="posPanel">
+    <h2>Position Panel</h2>
+    <div class="grid5">
+      <button onclick="sendCmd('POS:1')">1</button>
+      <button onclick="sendCmd('POS:2')">2</button>
+      <button onclick="sendCmd('POS:3')">3</button>
+      <button onclick="sendCmd('POS:4')">4</button>
+      <button onclick="sendCmd('POS:5')">5</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="scrollPanel">
+    <h2>Scroll Panel</h2>
+    <div class="grid2">
+      <button onclick="sendCmd('SCROLL:up')">⬆️ ขึ้น</button>
+      <button onclick="sendCmd('SCROLL:down')">⬇️ ลง</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="rotatePanel">
+    <h2>Rotate Panel</h2>
+    <div class="grid2">
+      <button onclick="sendCmd('ROTATE:left')">↩️ ซ้าย</button>
+      <button onclick="sendCmd('ROTATE:right')">↪️ ขวา</button>
+    </div>
+  </div>
+
+  <script>
+    async function sendCmd(cmd) {
+      try {
+        await fetch('/api/send', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ cmd })
+        });
+        await refreshState();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function refreshState() {
+      try {
+        const res = await fetch('/api/state');
+        const data = await res.json();
+
+        document.getElementById('status').innerText = data.status;
+        document.getElementById('result').innerText = data.result;
+        document.getElementById('last').innerText = data.last;
+
+        document.getElementById('posPanel').classList.toggle('hidden', !data.show_pos);
+        document.getElementById('scrollPanel').classList.toggle('hidden', !data.show_scroll);
+        document.getElementById('rotatePanel').classList.toggle('hidden', !data.show_rotate);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    refreshState();
+    setInterval(refreshState, 500);
+  </script>
+</body>
+</html>

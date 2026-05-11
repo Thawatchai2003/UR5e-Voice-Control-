@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ur5e_with_gripper">
+
+  <link name="world"/>
+
+  <!-- =====================================================
+       Args ที่ ur_control.launch.py ส่งเข้ามา (ต้องรับให้ครบ)
+       ===================================================== -->
+  <xacro:arg name="ur_type" default="ur5e"/>
+  <xacro:arg name="tf_prefix" default=""/>
+
+  <xacro:arg name="robot_ip" default="0.0.0.0"/>
+
+  <!-- UR driver / external control -->
+  <xacro:arg name="script_filename" default="$(find ur_client_library)/resources/external_control.urscript"/>
+  <xacro:arg name="output_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt"/>
+  <xacro:arg name="input_recipe_filename"  default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt"/>
+
+  <!-- fake hardware -->
+  <xacro:arg name="use_fake_hardware" default="false"/>
+  <xacro:arg name="fake_sensor_commands" default="false"/>
+  <xacro:arg name="headless_mode" default="false"/>
+
+  <!-- params files (ur_control.launch.py) -->
+  <xacro:arg name="joint_limit_params" default="$(find ur_description)/config/ur5e/joint_limits.yaml"/>
+  <xacro:arg name="kinematics_params"  default="$(find ur_description)/config/ur5e/default_kinematics.yaml"/>
+  <xacro:arg name="physical_params"    default="$(find ur_description)/config/ur5e/physical_parameters.yaml"/>
+  <xacro:arg name="visual_params"      default="$(find ur_description)/config/ur5e/visual_parameters.yaml"/>
+
+  <!-- safety -->
+  <xacro:arg name="safety_limits" default="true"/>
+  <xacro:arg name="safety_pos_margin" default="0.15"/>
+  <xacro:arg name="safety_k_position" default="20"/>
+
+  <!-- tool communication args (ur_control.launch.py) -->
+  <xacro:arg name="use_tool_communication" default="false"/>
+  <xacro:arg name="tool_parity" default="0"/>
+  <xacro:arg name="tool_baud_rate" default="115200"/>
+  <xacro:arg name="tool_stop_bits" default="1"/>
+  <xacro:arg name="tool_rx_idle_chars" default="1.5"/>
+  <xacro:arg name="tool_tx_idle_chars" default="3.5"/>
+  <xacro:arg name="tool_device_name" default="/tmp/ttyUR"/>
+  <xacro:arg name="tool_tcp_port" default="54321"/>
+  <xacro:arg name="tool_voltage" default="0"/>
+
+  <!-- reverse/script ports (ur_control.launch.py) -->
+  <xacro:arg name="reverse_ip" default="0.0.0.0"/>
+  <xacro:arg name="script_command_port" default="50004"/>
+  <xacro:arg name="reverse_port" default="50001"/>
+  <xacro:arg name="script_sender_port" default="50002"/>
+  <xacro:arg name="trajectory_port" default="50003"/>
+
+  <!-- =====================================================
+       Include
+       ===================================================== -->
+  <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+  <xacro:include filename="$(find zimmer_hrc03_description)/urdf/zimmer_hrc03.xacro"/>
+  <xacro:include filename="$(find ur5e_workcell)/urdf/workcell.urdf"/>
+  <xacro:include filename="$(find ur5e_workcell)/urdf/workcell_table.urdf"/>
+  <xacro:include filename="$(find ur5e_workcell)/urdf/Position_Point.urdf"/>
+
+
+  <xacro:include filename="$(find ur5e_workcell)/urdf/Box1.urdf"/>
+  <xacro:include filename="$(find ur5e_workcell)/urdf/Box2.urdf"/>
+  <xacro:include filename="$(find ur5e_workcell)/urdf/Box3.urdf"/>
+
+  <xacro:fixture_table prefix="table1"/>
+  <xacro:fixture_table prefix="table2"/>
+  <xacro:fixture_table prefix="table3"/>
+
+  <xacro:position_point prefix="p1" color="1 0 0 1"/>
+  <xacro:position_point prefix="p2" color="1 0 0 1"/>
+
+  <!-- =====================================================
+       Build UR + ros2_control ของแขน (สำคัญมาก)
+       NOTE: name ควรเป็น "ur" เพื่อให้ตรงกับ driver/config โดยทั่วไป
+       ===================================================== -->
+  <xacro:ur_robot
+    name="ur"
+    tf_prefix="$(arg tf_prefix)"
+    parent="world"
+
+    joint_limits_parameters_file="$(arg joint_limit_params)"
+    kinematics_parameters_file="$(arg kinematics_params)"
+    physical_parameters_file="$(arg physical_params)"
+    visual_parameters_file="$(arg visual_params)"
+
+    safety_limits="$(arg safety_limits)"
+    safety_pos_margin="$(arg safety_pos_margin)"
+    safety_k_position="$(arg safety_k_position)"
+
+    robot_ip="$(arg robot_ip)"
+    script_filename="$(arg script_filename)"
+    output_recipe_filename="$(arg output_recipe_filename)"
+    input_recipe_filename="$(arg input_recipe_filename)"
+    use_fake_hardware="$(arg use_fake_hardware)"
+    fake_sensor_commands="$(arg fake_sensor_commands)"
+    headless_mode="$(arg headless_mode)"
+
+    use_tool_communication="$(arg use_tool_communication)"
+    tool_parity="$(arg tool_parity)"
+    tool_baud_rate="$(arg tool_baud_rate)"
+    tool_stop_bits="$(arg tool_stop_bits)"
+    tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
+    tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
+    tool_device_name="$(arg tool_device_name)"
+    tool_tcp_port="$(arg tool_tcp_port)"
+    tool_voltage="$(arg tool_voltage)"
+
+    reverse_ip="$(arg reverse_ip)"
+    script_command_port="$(arg script_command_port)"
+    reverse_port="$(arg reverse_port)"
+    script_sender_port="$(arg script_sender_port)"
+    trajectory_port="$(arg trajectory_port)"
+
+    generate_ros2_control_tag="true">
+    <origin xyz="0 0 0.75" rpy="0 0 0"/>
+  </xacro:ur_robot>
+
+  <joint name="workcell_fixed" type="fixed">
+    <parent link="world"/>
+    <child link="workcell_base_link"/>
+    <origin xyz="-0.735 0.05 0.40" rpy="0 0 1.5708"/>
+  </joint>
+
+  <joint name="fixture_fixed_1" type="fixed">
+    <parent link="world"/>
+    <child link="table1_fixture_table_link"/>
+    <origin xyz="0.78 -0.30 0.73" rpy="0 0 1.5708"/>
+  </joint>
+
+  <joint name="fixture_fixed_2" type="fixed">
+    <parent link="world"/>
+    <child link="table2_fixture_table_link"/>
+    <origin xyz="-0.78 -0.30 0.73" rpy="0 0 1.5708"/>
+  </joint>
+
+  <joint name="fixture_fixed_3" type="fixed">
+    <parent link="world"/>
+    <child link="table3_fixture_table_link"/>
+    <origin xyz="0 0.899 0.73" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="box1_fixed" type="fixed">
+    <parent link="world"/>
+    <child link="box1_base_link"/>
+    <origin xyz="0.65 0.20 0.73" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="box2_fixed" type="fixed">
+    <parent link="world"/>
+    <child link="box2_base_link"/>
+    <origin xyz="-0.10 1.2 0.68" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="box3_fixed" type="fixed">
+    <parent link="world"/>
+    <child link="box3_base_link"/>
+    <origin xyz="-0.86 0.20 0.73" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="p1_fixed" type="fixed">
+    <parent link="world"/>
+    <child link="p1_position_point_link"/>
+    <origin xyz="-0.8 0.5 0.56" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="p2_fixed" type="fixed">
+    <parent link="world"/>
+    <child link="p2_position_point_link"/>
+    <origin xyz="0.5 0.5 0.56" rpy="0 0 0"/>
+  </joint>
+  
+
+  <!-- =====================================================
+       Attach gripper geometry (RViz)
+       ===================================================== -->
+  <xacro:zimmer_hrc03 parent="tool0"/>
+  <!-- =====================================================
+       gripper ros2_control (mock) — เปิดเฉพาะตอน SIM เท่านั้น
+       REAL คุณคุมด้วย DO16/DO17 อยู่แล้ว ไม่ต้องให้ ros2_control ยุ่ง
+       ===================================================== -->
+  <xacro:if value="$(arg use_fake_hardware)">
+    <ros2_control name="zimmer_system" type="system">
+      <hardware>
+        <plugin>mock_components/GenericSystem</plugin>
+      </hardware>
+
+      <joint name="zimmer_left_finger_joint">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+      </joint>
+
+      <joint name="zimmer_right_finger_joint">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+      </joint>
+    </ros2_control>
+  </xacro:if>
+
+</robot>
+   

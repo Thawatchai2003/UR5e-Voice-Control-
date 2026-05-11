@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phone Audio Bridge (Fallback)</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0f14;
+      color: #e8eef6;
+      padding: 16px;
+    }
+    .card {
+      background: #121a26;
+      border: 1px solid #1a2433;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    h1, h2 {
+      margin-top: 0;
+    }
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #1b2a3f;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .status {
+      color: #8b96a8;
+      font-size: 14px;
+      margin-top: 8px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .result {
+      color: #6ee7ff;
+      font-weight: bold;
+      margin-top: 8px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>📱 Phone Audio Bridge (Fallback)</h1>
+
+  <div class="card">
+    <h2>🎤 Audio Stream</h2>
+    <div class="grid2">
+      <button id="startBtn" onclick="startStreaming()">🎤 Start Mic Stream</button>
+      <button id="stopBtn" onclick="stopStreaming()">⏹ Stop Mic Stream</button>
+    </div>
+    <div class="status" id="audioStatus">สถานะ: ยังไม่เริ่ม</div>
+    <div class="result" id="audioInfo">chunk: 0 | sent: 0</div>
+    <div class="status" id="browserInfo"></div>
+  </div>
+
+  <div class="card">
+    <h2>🗣 Quick Voice Command</h2>
+    <div class="grid2">
+      <button id="voiceBtn" onclick="toggleVoice()">🎤 พูดคำสั่ง</button>
+      <button onclick="sendLastVoice()">📤 ส่งข้อความล่าสุด</button>
+    </div>
+    <div class="status" id="voiceStatus">สถานะเสียง: พร้อม</div>
+    <div class="result" id="voiceText">ข้อความล่าสุด: (ยังไม่มี)</div>
+  </div>
+
+  <div class="card">
+    <h2>⚡ Quick Buttons</h2>
+    <div class="grid2" style="margin-bottom: 10px;">
+      <button onclick="sendCmd('TEXT:หมุนซ้าย')">↩️ หมุนซ้าย</button>
+      <button onclick="sendCmd('TEXT:หมุนขวา')">↪️ หมุนขวา</button>
+    </div>
+    <div class="grid2">
+      <button onclick="sendCmd('TEXT:หยิบของ')">🤏 หยิบของ</button>
+      <button onclick="sendCmd('TEXT:วางของ')">📦 วางของ</button>
+    </div>
+  </div>
+
+  <script>
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let isStreaming = false;
+    let chunkCount = 0;
+    let sentCount = 0;
+
+    let audioContext = null;
+    let sourceNode = null;
+    let processorNode = null;
+    let webAudioTimer = null;
+    let pcmBuffer = [];
+
+    function setAudioStatus(msg) {
+      document.getElementById('audioStatus').innerText = 'สถานะ: ' + msg;
+    }
+
+    function setAudioInfo(msg) {
+      document.getElementById('audioInfo').innerText = msg;
+    }
+
+    function showBrowserInfo() {
+      const info = [
+        'isSecureContext=' + window.isSecureContext,
+        'navigator.mediaDevices=' + (!!navigator.mediaDevices),
+        'getUserMedia=' + (!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)),
+        'legacyGetUserMedia=' + (!!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)),
+        'MediaRecorder=' + (!!window.MediaRecorder),
+        'AudioContext=' + (!!(window.AudioContext || window.webkitAudioContext)),
+        'userAgent=' + navigator.userAgent
+      ].join('\n');
+
+      const el = document.getElementById('browserInfo');
+      if (el) el.innerText = info;
+    }
+
+    window.addEventListener('load', showBrowserInfo);
+
+    // =========================================================
+    // Compat getUserMedia
+    // =========================================================
+    function getUserMediaCompat(constraints) {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        return navigator.mediaDevices.getUserMedia(constraints);
+      }
+
+      const legacy = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+      if (!legacy) {
+        return Promise.reject(new Error('getUserMedia not supported'));
+      }
+
+      return new Promise((resolve, reject) => {
+        legacy.call(navigator, constraints, resolve, reject);
+      });
+    }
+
+    // =========================================================
+    // Convert Float32 [-1..1] -> PCM16 little-endian bytes
+    // =========================================================
+    function floatTo16BitPCMBytes(float32Array) {
+      const out = new Uint8Array(float32Array.length * 2);
+      let offset = 0;
+
+      for (let i = 0; i < float32Array.length; i++) {
+        let s = Math.max(-1, Math.min(1, float32Array[i]));
+        let val = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        val = Math.round(val);
+
+        out[offset++] = val & 0xFF;
+        out[offset++] = (val >> 8) & 0xFF;
+      }
+      return out;
+    }
+
+    // =========================================================
+    // Simple downsample to 16k mono
+    // =========================================================
+    function downsampleBuffer(buffer, inputSampleRate, outputSampleRate) {
+      if (outputSampleRate === inputSampleRate) {
+        return buffer;
+      }
+      if (outputSampleRate > inputSampleRate) {
+        return buffer; // ไม่ upsample
+      }
+
+      const ratio = inputSampleRate / outputSampleRate;
+      const newLength = Math.round(buffer.length / ratio);
+      const result = new Float32Array(newLength);
+
+      let offsetResult = 0;
+      let offsetBuffer = 0;
+
+      while (offsetResult < result.length) {
+        const nextOffsetBuffer = Math.round((offsetResult + 1) * ratio);
+        let accum = 0;
+        let count = 0;
+
+        for (let i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+          accum += buffer[i];
+          count++;
+        }
+
+        result[offsetResult] = count > 0 ? accum / count : 0;
+        offsetResult++;
+        offsetBuffer = nextOffsetBuffer;
+      }
+
+      return result;
+    }
+
+    // =========================================================
+    // Send raw PCM bytes directly
+    // (ต้องแก้ backend ให้รับ raw PCM ด้วย)
+    // =========================================================
+    async function sendPcmChunk(uint8Bytes) {
+      try {
+        const res = await fetch('/api/audio_chunk_pcm', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/octet-stream'
+          },
+          body: uint8Bytes
+        });
+
+        const data = await res.json();
+
+        if (data.ok) {
+          sentCount += 1;
+          setAudioInfo(`chunk: ${chunkCount} | sent: ${sentCount} | pcm_bytes: ${data.pcm_bytes}`);
+        } else {
+          setAudioStatus('ส่ง PCM ไม่สำเร็จ -> ' + (data.error || 'unknown'));
+        }
+      } catch (err) {
+        console.error(err);
+        setAudioStatus('error sending PCM -> ' + err);
+      }
+    }
+
+    // =========================================================
+    // WebAudio fallback
+    // =========================================================
+    async function startWebAudioFallback() {
+      setAudioStatus('ใช้ WebAudio fallback...');
+
+      const constraints = {
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      };
+
+      mediaStream = await getUserMediaCompat(constraints);
+
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) {
+        throw new Error('AudioContext not supported');
+      }
+
+      audioContext = new AC();
+      sourceNode = audioContext.createMediaStreamSource(mediaStream);
+
+      // ScriptProcessor ยังใช้ได้เป็น fallback แม้ deprecated
+      const bufferSize = 4096;
+      processorNode = audioContext.createScriptProcessor(bufferSize, 1, 1);
+
+      sourceNode.connect(processorNode);
+      processorNode.connect(audioContext.destination);
+
+      pcmBuffer = [];
+
+      processorNode.onaudioprocess = (event) => {
+        if (!isStreaming) return;
+
+        const input = event.inputBuffer.getChannelData(0); // mono
+        const copied = new Float32Array(input.length);
+        copied.set(input);
+        pcmBuffer.push(copied);
+      };
+
+      // ทุก 500ms รวม buffer แล้วส่ง
+      webAudioTimer = setInterval(async () => {
+        if (!isStreaming || pcmBuffer.length === 0) return;
+
+        let totalLen = 0;
+        for (const b of pcmBuffer) totalLen += b.length;
+
+        const merged = new Float32Array(totalLen);
+        let pos = 0;
+        for (const b of pcmBuffer) {
+          merged.set(b, pos);
+          pos += b.length;
+        }
+
+        pcmBuffer = [];
+
+        const inRate = audioContext.sampleRate || 48000;
+        const downsampled = downsampleBuffer(merged, inRate, 16000);
+        const pcmBytes = floatTo16BitPCMBytes(downsampled);
+
+        chunkCount += 1;
+        await sendPcmChunk(pcmBytes);
+      }, 500);
+
+      isStreaming = true;
+      setAudioStatus('กำลังส่งเสียง (WebAudio fallback)');
+    }
+
+    // =========================================================
+    // MediaRecorder path
+    // =========================================================
+    async function startMediaRecorderPath() {
+      const constraints = {
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      };
+
+      mediaStream = await getUserMediaCompat(constraints);
+
+      let mimeType = '';
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        mimeType = 'audio/webm;codecs=opus';
+      } else if (window.MediaRecorder && MediaRecorder.isTypeSupported('audio/webm')) {
+        mimeType = 'audio/webm';
+      } else if (window.MediaRecorder && MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4';
+      } else {
+        throw new Error('MediaRecorder supported but no suitable mime type');
+      }
+
+      mediaRecorder = new MediaRecorder(mediaStream, mimeType ? { mimeType } : undefined);
+
+      mediaRecorder.ondataavailable = async (event) => {
+        if (!event.data || event.data.size === 0) return;
+
+        chunkCount += 1;
+
+        try {
+          const arrayBuffer = await event.data.arrayBuffer();
+
+          const res = await fetch('/api/audio_chunk', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/octet-stream'
+            },
+            body: arrayBuffer
+          });
+
+          const data = await res.json();
+
+          if (data.ok) {
+            sentCount += 1;
+            setAudioInfo(`chunk: ${chunkCount} | sent: ${sentCount} | pcm_bytes: ${data.pcm_bytes}`);
+          } else {
+            setAudioStatus('ส่งไม่สำเร็จ -> ' + (data.error || 'unknown'));
+          }
+        } catch (err) {
+          console.error(err);
+          setAudioStatus('error sending chunk -> ' + err);
+        }
+      };
+
+      mediaRecorder.onstart = () => {
+        isStreaming = true;
+        setAudioStatus('กำลังส่งเสียง (MediaRecorder)...');
+      };
+
+      mediaRecorder.onstop = () => {
+        isStreaming = false;
+        setAudioStatus('หยุดส่งเสียงแล้ว');
+      };
+
+      mediaRecorder.start(500);
+    }
+
+    // =========================================================
+    // Start streaming (auto choose best path)
+    // =========================================================
+    async function startStreaming() {
+      if (isStreaming) return;
+
+      chunkCount = 0;
+      sentCount = 0;
+      setAudioInfo('chunk: 0 | sent: 0');
+
+      if (!window.isSecureContext) {
+        setAudioStatus('ไม่ใช่ Secure Context -> ต้องเปิดผ่าน https://');
+        return;
+      }
+
+      try {
+        // ถ้ามี MediaRecorder ใช้ก่อน
+        if (window.MediaRecorder) {
+          try {
+            await startMediaRecorderPath();
+            return;
+          } catch (e) {
+            console.warn('MediaRecorder path failed, fallback to WebAudio', e);
+          }
+        }
+
+        // fallback
+        await startWebAudioFallback();
+
+      } catch (err) {
+        console.error(err);
+        setAudioStatus('เริ่ม stream ไม่สำเร็จ -> ' + err);
+      }
+    }
+
+    // =========================================================
+    // Stop streaming
+    // =========================================================
+    function stopStreaming() {
+      try {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        if (webAudioTimer) {
+          clearInterval(webAudioTimer);
+          webAudioTimer = null;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        if (processorNode) {
+          processorNode.disconnect();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        if (sourceNode) {
+          sourceNode.disconnect();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        if (audioContext) {
+          audioContext.close();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        if (mediaStream) {
+          mediaStream.getTracks().forEach(track => track.stop());
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      mediaRecorder = null;
+      mediaStream = null;
+      audioContext = null;
+      sourceNode = null;
+      processorNode = null;
+      pcmBuffer = [];
+      isStreaming = false;
+
+      setAudioStatus('หยุดส่งเสียงแล้ว');
+    }
+
+    // =========================================================
+    // Quick voice command (SpeechRecognition)
+    // =========================================================
+    let recognition = null;
+    let isListening = false;
+    let lastTranscript = '';
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        document.getElementById('voiceStatus').innerText = 'สถานะเสียง: browser ไม่รองรับ SpeechRecognition';
+        return false;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = 'th-TH';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        isListening = true;
+        document.getElementById('voiceBtn').innerText = '⏹ หยุดฟัง';
+        document.getElementById('voiceStatus').innerText = 'สถานะเสียง: กำลังฟัง...';
+      };
+
+      recognition.onresult = (event) => {
+        let finalText = '';
+        let interimText = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript.trim();
+          if (event.results[i].isFinal) {
+            finalText += transcript;
+          } else {
+            interimText += transcript;
+          }
+        }
+
+        if (interimText) {
+          document.getElementById('voiceText').innerText = 'กำลังได้ยิน: ' + interimText;
+        }
+
+        if (finalText) {
+          lastTranscript = finalText;
+          document.getElementById('voiceText').innerText = 'ข้อความล่าสุด: ' + finalText;
+          sendCmd('TEXT:' + finalText);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        isListening = false;
+        document.getElementById('voiceBtn').innerText = '🎤 พูดคำสั่ง';
+        document.getElementById('voiceStatus').innerText = 'สถานะเสียง: error = ' + event.error;
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        document.getElementById('voiceBtn').innerText = '🎤 พูดคำสั่ง';
+        document.getElementById('voiceStatus').innerText = 'สถานะเสียง: พร้อม';
+      };
+
+      return true;
+    }
+
+    function toggleVoice() {
+      if (!recognition) {
+        const ok = initSpeechRecognition();
+        if (!ok) return;
+      }
+
+      if (!isListening) {
+        try {
+          recognition.start();
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        try {
+          recognition.stop();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+
+    function sendLastVoice() {
+      if (!lastTranscript) {
+        alert('ยังไม่มีข้อความล่าสุด');
+        return;
+      }
+      sendCmd('TEXT:' + lastTranscript);
+    }
+
+    // =========================================================
+    // Send quick command
+    // =========================================================
+    async function sendCmd(cmd) {
+      try {
+        const res = await fetch('/api/send_cmd', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ cmd })
+        });
+
+        const data = await res.json();
+        console.log(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
