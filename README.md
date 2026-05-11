@@ -153,7 +153,7 @@ Move to the source folder and clone the UR5e Voice Control repository.
 ```bash
 cd UR5e_ws/src
 
-git clone https://github.com/Thawatchai2003/UR5e-Voice-Control-.git
+git clone https://github.com/Thawatchai2003/Zimmer_HRC_03.git-.git
 ```
 
 ### Description
