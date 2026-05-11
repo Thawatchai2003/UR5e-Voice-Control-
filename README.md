@@ -8,7 +8,7 @@ Voice-controlled system for controlling the UR5e collaborative robot using ROS2,
 
 - Ubuntu 22.04
 - ROS2 Humble
-- Python 3
+- Python 3 
 - MoveIt2
 - UR5e Robot
 
