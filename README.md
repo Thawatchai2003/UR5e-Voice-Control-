@@ -145,15 +145,18 @@ mkdir -p ~/ur5e_ws/src
 
 ---
 
-## 2. Go to Source Folder
+## 2. Clone UR5e Voice Control Repository
 
-Move to the source folder inside the workspace.
+Clone the UR5e Voice Control package from GitHub into the workspace source folder.
 
 ### Command
 ```bash
 cd ~/ur5e_ws/src
+
+git clone https://github.com/your_username/ur5e_voice_control.git
 ```
 
 ### Description
-- `cd` : Change directory
-- `~/ur5e_ws/src` : Source folder location for ROS2 packages
+- `cd ~/ur5e_ws/src` : Move to the ROS2 source folder
+- `git clone` : Download repository from GitHub
+- `ur5e_voice_control.git` : UR5e Voice Control repository
