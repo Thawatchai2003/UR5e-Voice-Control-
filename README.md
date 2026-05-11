@@ -154,6 +154,7 @@ Move to the source folder and clone the Zimmer_HRC_03 package repository from Gi
 cd ur5e_ws/src
 
 git clone https://github.com/Thawatchai2003/Zimmer_HRC_03.git
+git clone https://github.com/Thawatchai2003/Zimmer_HRC_03_configured.git
 ```
 
 ### Description
