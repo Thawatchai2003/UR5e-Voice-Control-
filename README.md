@@ -147,15 +147,16 @@ mkdir -p UR5e_ws/src
 
 ## 2. Clone Repository into Source Folder
 
-Move to the source folder and clone the UR5e Voice Control repository.
+Move to the source folder and clone the Zimmer_HRC_03 package repository from GitHub.
 
 ### Command
 ```bash
-cd UR5e_ws/src
+cd ur5e_ws/src
 
-git clone https://github.com/Thawatchai2003/Zimmer_HRC_03.git```
+git clone https://github.com/Thawatchai2003/Zimmer_HRC_03.git
+```
 
 ### Description
-- `cd UR5e_ws/src` : Move to the ROS2 source folder
+- `cd ur5e_ws/src` : Move to the ROS2 source folder
 - `git clone` : Download repository from GitHub
-- `UR5e_ws_voice_control.git` : UR5e Voice Control repository
+- `Zimmer_HRC_03.git` : ROS2 package repository for Zimmer HRC gripper control
