@@ -135,7 +135,7 @@ Create a ROS2 workspace for the UR5e Voice Control project.
 
 ### Command
 ```bash
-mkdir -p ~/ur5e_ws/src
+mkdir -p ur5e_ws/src
 ```
 
 ### Description
