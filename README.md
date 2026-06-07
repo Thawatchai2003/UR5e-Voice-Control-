@@ -289,3 +289,37 @@ UR5e_ws/
 
 This step installs the latest launch files required to start and manage the UR5e Voice Control System. These launch files define how ROS2 nodes, robot drivers, gripper interfaces, speech processing modules, and monitoring tools are initialized and executed within the system.
 
+## 6. Configure Initial Joint Positions
+
+Create the initial joint position configuration file for the UR5e robot.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src/UR5e_Control/config
+
+nano initial_positions.yaml
+```
+
+### Description
+
+* `cd ~/UR5e_ws/src/UR5e_Control/config` : Navigate to the configuration directory.
+* `nano initial_positions.yaml` : Create and edit the initial joint position configuration file.
+
+### File Content
+
+Paste the following joint values into `initial_positions.yaml`:
+
+```yaml
+shoulder_pan_joint: 0.0
+shoulder_lift_joint: -1.57
+elbow_joint: 0.0
+wrist_1_joint: -1.57
+wrist_2_joint: 0.0
+wrist_3_joint: 0.0
+```
+
+### Purpose
+
+This configuration file defines the default joint positions of the UR5e robot at startup. These values are commonly used as an initial home position for robot initialization, motion planning, and testing.
+
