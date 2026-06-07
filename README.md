@@ -919,3 +919,56 @@ Respeaker_mic_array/
 ├── setup.py
 └── setup.cfg
 ```
+## 14. Build the Workspace
+
+Build all ROS2 packages in the workspace using Colcon.
+
+### Command
+
+```bash
+cd ~/UR5e_ws
+
+source /opt/ros/humble/setup.bash
+
+colcon build --symlink-install
+```
+
+### Description
+
+* `cd ~/UR5e_ws` : Move to the ROS2 workspace root directory.
+* `source /opt/ros/humble/setup.bash` : Load the ROS2 Humble environment.
+* `colcon build --symlink-install` : Build all packages in the workspace and create symbolic links for easier development.
+
+### Expected Output
+
+After a successful build, the workspace will contain the following directories:
+
+```text
+UR5e_ws/
+├── build/
+├── install/
+├── log/
+└── src/
+```
+
+### Source the Workspace
+
+After the build process is complete, source the workspace environment:
+
+```bash
+source ~/UR5e_ws/install/setup.bash
+```
+
+### Verify Installation
+
+Check that the packages were successfully installed:
+
+```bash
+ros2 pkg list | grep UR5e_Control
+
+ros2 pkg list | grep respeaker_mic_array
+```
+
+### Purpose
+
+This step compiles all ROS2 packages, installs launch files and configuration files, and registers executable nodes so they can be launched using ROS2 commands such as `ros2 run` and `ros2 launch`.
