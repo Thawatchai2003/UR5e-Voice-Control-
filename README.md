@@ -163,3 +163,38 @@ git clone https://github.com/Thawatchai2003/Zimmer_HRC_03_configured.git
 - `git clone` : Download repository from GitHub
 - `Zimmer_HRC_03.git` : ROS2 package repository for Zimmer HRC gripper control
 - `Zimmer_HRC_03_configured.git` : Configured ROS2 package for Zimmer HRC system setup
+
+## 3. Clone UR5e Control Repository
+
+Move to the project folder and clone the UR5e Control repository from GitHub.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src
+
+mkdir -p UR5e_Control
+
+cd UR5e_Control
+
+git clone https://github.com/Thawatchai2003/Ur5e_Control.git
+```
+
+### Description
+
+- `cd ~/UR5e_ws/src` : Move to the ROS2 source folder
+- `mkdir -p UR5e_Control` : Create the UR5e Control project folder
+- `cd UR5e_Control` : Move into the UR5e Control folder
+- `git clone` : Download repository from GitHub
+- `Ur5e_Control.git` : ROS2 package repository for UR5e voice control and robot operation
+
+### Expected Directory Structure
+
+```text
+UR5e_ws/
+└── src/
+    ├── Zimmer_HRC_03/
+    ├── Zimmer_HRC_03_configured/
+    └── UR5e_Control/
+        └── Ur5e_Control/
+```
