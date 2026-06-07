@@ -375,5 +375,70 @@ UR5e_ws/
         ├── setup.py
         └── setup.cfg
 ```
+## 8. Configure Package Installation
+
+Update the `setup.py` file to register all ROS2 nodes, launch files, and configuration files required by the UR5e Voice Control System.
+
+### File
+
+```text
+UR5e_ws/
+└── src/
+    └── UR5e_Control/
+        └── setup.py
+```
+
+### Description
+
+The `setup.py` file is responsible for package installation and registration within the ROS2 environment. It defines package metadata, installs launch and configuration files, and registers executable ROS2 nodes.
+
+### Features
+
+* Register the package in the ROS2 ament index.
+* Install `package.xml`.
+* Install all launch files from the `launch/` directory.
+* Install configuration files from the `config/` directory.
+* Register ROS2 executable nodes through `console_scripts`.
+* Define package metadata and dependencies.
+
+### Installed Configuration Files
+
+```text
+config/
+├── initial_positions.yaml
+└── ur5e_executor_params.yaml
+```
+
+### Installed Launch Files
+
+```text
+launch/
+└── *.launch.py
+```
+
+### Registered ROS2 Nodes
+
+#### Speech Processing
+
+* `speech_to_text_node`
+* `tts_node_gtts`
+* `speech_gui_node`
+* `nlu_parser_node`
+* `beep_node`
+* `voice_logger_node`
+* `dialog_fsm_node`
+* `audio_monitor_gui`
+
+#### Robot Control
+
+* `ur5_cmd_mapper_node`
+* `control_position_node`
+* `ur5_executor_node`
+* `gripper_bridge_node`
+* `audio_receiver_node`
+
+### Purpose
+
+This file ensures that all components of the UR5e Voice Control System are properly installed and accessible within ROS2 after building the workspace with `colcon build`.
 
 
