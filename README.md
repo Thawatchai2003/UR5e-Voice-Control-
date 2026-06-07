@@ -202,3 +202,46 @@ UR5e_ws/
 ### Purpose
 
 The `UR5e_Control` package serves as the main ROS2 package for the UR5e Voice Control system. It contains voice processing nodes, robot control nodes, gripper interfaces, launch files, configuration files, and graphical monitoring tools.
+
+## 4. Replace the Generated Package with the Repository Version
+
+Replace the default ROS2 package template with the official UR5e Control repository.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src
+
+rm -rf UR5e_Control
+
+git clone https://github.com/Thawatchai2003/Ur5e_Control.git UR5e_Control
+```
+
+### Description
+
+* `cd ~/UR5e_ws/src` : Navigate to the ROS2 workspace source directory.
+* `rm -rf UR5e_Control` : Remove the previously generated package template.
+* `git clone` : Clone the repository from GitHub.
+* `Ur5e_Control.git` : Repository containing the complete UR5e Voice Control System.
+* `UR5e_Control` : Local package directory name inside the workspace.
+
+### Expected Directory Structure
+
+```text
+UR5e_ws/
+└── src/
+    ├── Zimmer_HRC_03/
+    ├── Zimmer_HRC_03_configured/
+    └── UR5e_Control/
+        ├── package.xml
+        ├── setup.py
+        ├── setup.cfg
+        ├── config/
+        ├── launch/
+        ├── resource/
+        └── UR5e_Control/
+```
+
+### Purpose
+
+The UR5e Control repository provides the complete implementation of the voice-controlled robotic manipulation framework. It includes speech processing, command interpretation, robot motion control, gripper integration, graphical monitoring tools, and system configuration files required for operating a UR5e robot within a ROS2 environment.
