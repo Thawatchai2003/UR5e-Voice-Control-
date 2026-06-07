@@ -972,3 +972,73 @@ ros2 pkg list | grep respeaker_mic_array
 ### Purpose
 
 This step compiles all ROS2 packages, installs launch files and configuration files, and registers executable nodes so they can be launched using ROS2 commands such as `ros2 run` and `ros2 launch`.
+
+## 15. Launch the UR5e Voice Control System
+
+Launch the UR5e robot control system in either **Real Robot Mode** or **Simulation Mode**.
+
+### Real Robot Mode
+
+Use this mode when connecting to a physical UR5e robot.
+
+#### Command
+
+```bash
+ros2 launch ur5_sim_gz ur5_real.launch.py \
+  ur_type:=ur5e \
+  robot_ip:=192.168.1.200 \
+  use_fake_hardware:=false \
+  launch_rviz:=true \
+  gripper_mode:=real
+```
+
+#### Description
+
+* `ur_type:=ur5e` : Specify the robot model.
+* `robot_ip:=192.168.1.200` : IP address of the physical UR5e controller.
+* `use_fake_hardware:=false` : Enable communication with the real robot hardware.
+* `launch_rviz:=true` : Launch RViz for visualization and monitoring.
+* `gripper_mode:=real` : Enable the physical Zimmer HRC gripper.
+
+#### Requirements
+
+* UR5e robot powered on.
+* Network connection established between PC and robot controller.
+* Universal Robots ROS2 Driver installed and configured.
+* Zimmer HRC gripper connected and operational.
+
+---
+
+### Simulation Mode
+
+Use this mode for testing without a physical robot.
+
+#### Command
+
+```bash
+ros2 launch ur5_sim_gz ur5_real.launch.py \
+  ur_type:=ur5e \
+  robot_ip:=0.0.0.0 \
+  use_fake_hardware:=true \
+  launch_rviz:=true \
+  gripper_mode:=sim
+```
+
+#### Description
+
+* `ur_type:=ur5e` : Specify the robot model.
+* `robot_ip:=0.0.0.0` : No physical robot connection required.
+* `use_fake_hardware:=true` : Use ROS2 fake hardware interfaces.
+* `launch_rviz:=true` : Launch RViz for visualization and motion planning.
+* `gripper_mode:=sim` : Enable simulated gripper behavior.
+
+#### Requirements
+
+* ROS2 Humble installed.
+* MoveIt2 installed.
+* URDF and robot configuration files available.
+* No physical robot hardware required.
+
+### Purpose
+
+This launch file initializes the complete UR5e Voice Control System, including robot control, motion planning, gripper integration, state publishing, and visualization. It supports both real-world deployment and simulation-based development using the same software framework.
