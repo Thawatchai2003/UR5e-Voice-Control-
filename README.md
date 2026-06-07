@@ -164,37 +164,41 @@ git clone https://github.com/Thawatchai2003/Zimmer_HRC_03_configured.git
 - `Zimmer_HRC_03.git` : ROS2 package repository for Zimmer HRC gripper control
 - `Zimmer_HRC_03_configured.git` : Configured ROS2 package for Zimmer HRC system setup
 
-## 3. Clone UR5e Control Repository
+## 3. Create UR5e Control Package
 
-Move to the project folder and clone the UR5e Control repository from GitHub.
+Create a ROS2 Python package named `UR5e_Control` inside the workspace source folder.
 
 ### Command
 
 ```bash
 cd ~/UR5e_ws/src
 
-mkdir -p UR5e_Control
-
-cd UR5e_Control
-
-git clone https://github.com/Thawatchai2003/Ur5e_Control.git
+ros2 pkg create --build-type ament_python UR5e_Control
 ```
 
 ### Description
 
 - `cd ~/UR5e_ws/src` : Move to the ROS2 source folder
-- `mkdir -p UR5e_Control` : Create the UR5e Control project folder
-- `cd UR5e_Control` : Move into the UR5e Control folder
-- `git clone` : Download repository from GitHub
-- `Ur5e_Control.git` : ROS2 package repository for UR5e voice control and robot operation
+- `ros2 pkg create` : Create a new ROS2 package
+- `--build-type ament_python` : Create a Python-based ROS2 package
+- `UR5e_Control` : Package name for the UR5e Voice Control system
 
 ### Expected Directory Structure
 
 ```text
 UR5e_ws/
 └── src/
-    ├── Zimmer_HRC_03/
-    ├── Zimmer_HRC_03_configured/
     └── UR5e_Control/
-        └── Ur5e_Control/
+        ├── package.xml
+        ├── setup.py
+        ├── setup.cfg
+        ├── resource/
+        │   └── UR5e_Control
+        ├── test/
+        └── UR5e_Control/
+            └── __init__.py
 ```
+
+### Purpose
+
+The `UR5e_Control` package serves as the main ROS2 package for the UR5e Voice Control system. It contains voice processing nodes, robot control nodes, gripper interfaces, launch files, configuration files, and graphical monitoring tools.
