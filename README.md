@@ -245,3 +245,47 @@ UR5e_ws/
 ### Purpose
 
 The UR5e Control repository provides the complete implementation of the voice-controlled robotic manipulation framework. It includes speech processing, command interpretation, robot motion control, gripper integration, graphical monitoring tools, and system configuration files required for operating a UR5e robot within a ROS2 environment.
+
+## 5. Replace Launch Files
+
+Remove the default launch directory and replace it with the latest launch configuration from the GitHub repository.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src/UR5e_Control
+
+rm -rf launch
+
+git clone https://github.com/Thawatchai2003/launch.git launch
+```
+
+### Description
+
+* `cd ~/UR5e_ws/src/UR5e_Control` : Navigate to the UR5e Control package directory.
+* `rm -rf launch` : Remove the existing launch directory.
+* `git clone` : Clone the repository from GitHub.
+* `launch.git` : Repository containing the launch files for the UR5e Voice Control System.
+* `launch` : Clone the repository using `launch` as the local directory name.
+
+### Expected Directory Structure
+
+```text
+UR5e_ws/
+└── src/
+    └── UR5e_Control/
+        ├── package.xml
+        ├── setup.py
+        ├── setup.cfg
+        ├── config/
+        ├── launch/
+        │   ├── *.launch.py
+        │   └── ...
+        ├── resource/
+        └── UR5e_Control/
+```
+
+### Purpose
+
+This step installs the latest launch files required to start and manage the UR5e Voice Control System. These launch files define how ROS2 nodes, robot drivers, gripper interfaces, speech processing modules, and monitoring tools are initialized and executed within the system.
+
