@@ -801,3 +801,121 @@ usb_4_mic_array/
 | `vad_node`             | Performs Voice Activity Detection (VAD).                              |
 | `full_dsp_tuning_node` | Configures and tunes DSP parameters of the microphone array.          |
 | `google_stt`           | Converts speech audio into text using Google Speech-to-Text services. |
+
+## 13. Configure DSP Parameters
+
+Create the DSP configuration file for the ReSpeaker Microphone Array.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src/Respeaker_mic_array/config
+
+nano dsp_params.yaml
+```
+
+### Description
+
+* `cd ~/UR5e_ws/src/Respeaker_mic_array/config` : Move to the configuration directory.
+* `nano dsp_params.yaml` : Create and edit the DSP parameter configuration file.
+
+### File Content
+
+Paste the following configuration into `dsp_params.yaml`:
+
+```yaml
+graph_node:
+  ros__parameters:
+
+    # ===== CORE =====
+    AGCONOFF: 1
+    ECHOONOFF: 1
+    STATNOISEONOFF: 1
+    NONSTATNOISEONOFF: 1
+    TRANSIENTONOFF: 1
+    RT60ONOFF: 1
+    CNIONOFF: 1
+    NLATTENONOFF: 1
+    HPFONOFF: 1
+
+    # ===== AGC =====
+    AGCMAXGAIN: 20
+    AGCDESIREDLEVEL: 0.02
+    AGCTIME: 0.5
+
+    # ===== NOISE =====
+    GAMMA_NS: 1.5
+    GAMMA_NN: 1.3
+    MIN_NS: 0.15
+    MIN_NN: 0.10
+
+    # ===== ASR =====
+    GAMMA_NS_SR: 1.4
+    GAMMA_NN_SR: 1.4
+    MIN_NS_SR: 0.20
+    MIN_NN_SR: 0.20
+
+    # ===== BEAMFORMING =====
+    GAMMA_E: 1.5
+    GAMMA_ETAIL: 1.3
+    GAMMA_ENL: 2.0
+    AECNORM: 1.0
+```
+
+### Purpose
+
+The `dsp_params.yaml` file defines Digital Signal Processing (DSP) parameters used by the ReSpeaker microphone array. These settings control automatic gain control, echo cancellation, noise suppression, speech enhancement, and beamforming performance.
+
+### Parameter Groups
+
+#### Core DSP Features
+
+* `AGCONOFF` : Automatic Gain Control (AGC)
+* `ECHOONOFF` : Acoustic Echo Cancellation (AEC)
+* `STATNOISEONOFF` : Stationary Noise Suppression
+* `NONSTATNOISEONOFF` : Non-Stationary Noise Suppression
+* `TRANSIENTONOFF` : Transient Noise Reduction
+* `RT60ONOFF` : Reverberation Suppression
+* `CNIONOFF` : Comfort Noise Insertion
+* `NLATTENONOFF` : Non-Linear Echo Attenuation
+* `HPFONOFF` : High-Pass Filter
+
+#### Automatic Gain Control (AGC)
+
+* `AGCMAXGAIN` : Maximum gain level
+* `AGCDESIREDLEVEL` : Target output level
+* `AGCTIME` : AGC response time
+
+#### Noise Suppression
+
+* `GAMMA_NS`
+* `GAMMA_NN`
+* `MIN_NS`
+* `MIN_NN`
+
+#### Speech Recognition Optimization
+
+* `GAMMA_NS_SR`
+* `GAMMA_NN_SR`
+* `MIN_NS_SR`
+* `MIN_NN_SR`
+
+#### Beamforming and Echo Control
+
+* `GAMMA_E`
+* `GAMMA_ETAIL`
+* `GAMMA_ENL`
+* `AECNORM`
+
+### Expected Directory Structure
+
+```text
+Respeaker_mic_array/
+├── config/
+│   └── dsp_params.yaml
+├── launch/
+├── resource/
+├── package.xml
+├── setup.py
+└── setup.cfg
+```
