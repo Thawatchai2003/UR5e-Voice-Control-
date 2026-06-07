@@ -323,3 +323,56 @@ wrist_3_joint: 0.0
 
 This configuration file defines the default joint positions of the UR5e robot at startup. These values are commonly used as an initial home position for robot initialization, motion planning, and testing.
 
+## 7. Configure UR5e Executor Parameters
+
+Create the executor parameter configuration file for the UR5e Control System.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src/UR5e_Control/config
+
+nano ur5e_executor_params.yaml
+```
+
+### Description
+
+* `cd ~/UR5e_ws/src/UR5e_Control/config` : Navigate to the configuration directory.
+* `nano ur5e_executor_params.yaml` : Create and edit the UR5e executor parameter file.
+
+### File Content
+
+Paste the following configuration into `ur5e_executor_params.yaml`:
+
+```yaml
+ur5e_executor_node:
+  ros__parameters:
+    speed_mode: "normal"
+```
+
+### Purpose
+
+This configuration file defines runtime parameters for the `ur5e_executor_node`. The `speed_mode` parameter controls the robot execution behavior and can be adjusted depending on the application requirements.
+
+### Parameter Description
+
+| Parameter    | Value      | Description                                           |
+| ------------ | ---------- | ----------------------------------------------------- |
+| `speed_mode` | `"normal"` | Execute robot motions at the default operating speed. |
+
+### Expected Directory Structure
+
+```text
+UR5e_ws/
+└── src/
+    └── UR5e_Control/
+        ├── config/
+        │   ├── initial_positions.yaml
+        │   └── ur5e_executor_params.yaml
+        ├── launch/
+        ├── resource/
+        ├── package.xml
+        ├── setup.py
+        └── setup.cfg
+```
+
