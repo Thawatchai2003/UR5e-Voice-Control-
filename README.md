@@ -388,20 +388,83 @@ UR5e_ws/
         └── setup.py
 ```
 
-### Description
+### setup.py
 
-The `setup.py` file is responsible for package installation and registration within the ROS2 environment. It defines package metadata, installs launch and configuration files, and registers executable ROS2 nodes.
+```python
+from glob import glob
+from setuptools import setup
 
-### Features
+package_name = 'UR5e_Control'
 
-* Register the package in the ROS2 ament index.
-* Install `package.xml`.
-* Install all launch files from the `launch/` directory.
-* Install configuration files from the `config/` directory.
-* Register ROS2 executable nodes through `console_scripts`.
-* Define package metadata and dependencies.
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=[package_name],
 
-### Installed Configuration Files
+    # Install shared files (ROS2)
+    data_files=[
+        (
+            'share/ament_index/resource_index/packages',
+            ['resource/' + package_name]
+        ),
+
+        (
+            'share/' + package_name,
+            ['package.xml']
+        ),
+
+        (
+            'share/' + package_name + '/launch',
+            glob('launch/*.launch.py')
+        ),
+
+        (
+            'share/' + package_name + '/config',
+            [
+                'config/initial_positions.yaml',
+                'config/ur5e_executor_params.yaml',
+            ]
+        ),
+    ],
+
+    install_requires=['setuptools'],
+    zip_safe=True,
+
+    maintainer='thawatchai',
+    maintainer_email='example@example.com',
+    description='UR5e Voice Control System',
+    license='Apache License 2.0',
+    tests_require=['pytest'],
+
+    entry_points={
+        'console_scripts': [
+
+            # Speech & Voice
+            'speech_to_text_node = UR5e_Control.speech_to_text_node:main',
+            'tts_node_gtts = UR5e_Control.tts_node_gtts:main',
+            'speech_gui_node = UR5e_Control.speech_gui_node:main',
+            'nlu_parser_node = UR5e_Control.nlu_parser_node:main',
+            'beep_node = UR5e_Control.beep_node:main',
+            'voice_logger_node = UR5e_Control.voice_logger_node:main',
+            'dialog_fsm_node = UR5e_Control.dialog_fsm_node:main',
+            'audio_monitor_gui = UR5e_Control.audio_monitor_gui:main',
+
+            # UR5e Control
+            'ur5_cmd_mapper_node = UR5e_Control.ur5_cmd_mapper_node:main',
+            'control_position_node = UR5e_Control.control_position_node:main',
+            'ur5_executor_node = UR5e_Control.ur5_executor_node:main',
+            'gripper_bridge_node = UR5e_Control.gripper_bridge_node:main',
+            'audio_receiver_node = UR5e_Control.audio_receiver_node:main',
+        ],
+    },
+)
+```
+
+### Purpose
+
+The `setup.py` file defines how the UR5e Control package is installed within ROS2. It registers launch files, configuration files, and executable nodes, allowing them to be discovered and executed after building the workspace.
+
+### Registered Configuration Files
 
 ```text
 config/
@@ -409,33 +472,25 @@ config/
 └── ur5e_executor_params.yaml
 ```
 
-### Installed Launch Files
-
-```text
-launch/
-└── *.launch.py
-```
-
 ### Registered ROS2 Nodes
 
-#### Speech Processing
+* speech_to_text_node
+* tts_node_gtts
+* speech_gui_node
+* nlu_parser_node
+* beep_node
+* voice_logger_node
+* dialog_fsm_node
+* audio_monitor_gui
+* ur5_cmd_mapper_node
+* control_position_node
+* ur5_executor_node
+* gripper_bridge_node
+* audio_receiver_node
 
-* `speech_to_text_node`
-* `tts_node_gtts`
-* `speech_gui_node`
-* `nlu_parser_node`
-* `beep_node`
-* `voice_logger_node`
-* `dialog_fsm_node`
-* `audio_monitor_gui`
+```
+```
 
-#### Robot Control
-
-* `ur5_cmd_mapper_node`
-* `control_position_node`
-* `ur5_executor_node`
-* `gripper_bridge_node`
-* `audio_receiver_node`
 
 ### Purpose
 
