@@ -494,3 +494,45 @@ config/
 
 This file ensures that all components of the UR5e Voice Control System are properly installed and accessible within ROS2 after building the workspace with `colcon build`.
 
+## 9. Create ReSpeaker Microphone Array Package
+
+Create a ROS2 package for integrating and managing the ReSpeaker Microphone Array.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src
+
+ros2 pkg create --build-type ament_python Respeaker_mic_array
+```
+
+### Description
+
+* `cd ~/UR5e_ws/src` : Move to the ROS2 source folder.
+* `ros2 pkg create` : Create a new ROS2 package.
+* `--build-type ament_python` : Create a Python-based ROS2 package.
+* `Respeaker_mic_array` : Package name for ReSpeaker microphone array integration.
+
+### Expected Directory Structure
+
+```text
+UR5e_ws/
+└── src/
+    ├── Zimmer_HRC_03/
+    ├── Zimmer_HRC_03_configured/
+    ├── UR5e_Control/
+    └── Respeaker_mic_array/
+        ├── package.xml
+        ├── setup.py
+        ├── setup.cfg
+        ├── resource/
+        │   └── Respeaker_mic_array
+        ├── test/
+        └── Respeaker_mic_array/
+            └── __init__.py
+```
+
+### Purpose
+
+The `Respeaker_mic_array` package provides the software framework for integrating the ReSpeaker Microphone Array with ROS2. It is responsible for audio acquisition, microphone array management, voice activity detection, and audio streaming for speech recognition systems.
+
