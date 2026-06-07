@@ -664,3 +664,140 @@ ros2 launch Respeaker_mic_array respeaker.launch.py
 * Channel 0 is selected by default.
 * Automatic microphone monitoring and channel management are enabled.
 * Debug logging is enabled for troubleshooting and system verification.
+
+## 12. Configure Package Installation
+
+Create the `setup.py` file for the ReSpeaker Microphone Array package.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src/Respeaker_mic_array
+
+nano setup.py
+```
+
+### Description
+
+* `cd ~/UR5e_ws/src/Respeaker_mic_array` : Move to the package root directory.
+* `nano setup.py` : Create and edit the package installation script.
+
+### File Content
+
+Paste the following code into `setup.py`:
+
+```python
+from setuptools import setup, find_packages
+
+package_name = 'respeaker_mic_array'
+
+### setup.py
+
+```python
+from setuptools import setup, find_packages
+
+package_name = 'respeaker_mic_array'
+
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=find_packages(),
+
+    data_files=[
+        (
+            'share/ament_index/resource_index/packages',
+            ['resource/' + package_name]
+        ),
+        (
+            'share/' + package_name,
+            ['package.xml']
+        ),
+        (
+            'share/' + package_name + '/launch',
+            ['launch/respeaker.launch.py']
+        ),
+    ],
+
+    package_data={
+        package_name: [
+            'usb_4_mic_array/*.bin',
+            'usb_4_mic_array/*.cfg',
+        ],
+    },
+
+    install_requires=['setuptools'],
+    zip_safe=True,
+
+    maintainer='thawatchai',
+    maintainer_email='thawatchai@todo.todo',
+    description='ReSpeaker USB 4-Mic Array ROS2 Driver',
+    license='MIT',
+
+    entry_points={
+        'console_scripts': [
+            'doa_node = respeaker_mic_array.doa_node:main',
+            'vad_node = respeaker_mic_array.vad_node:main',
+            'audio_node = respeaker_mic_array.audio_node:main',
+            'full_dsp_tuning_node = respeaker_mic_array.full_dsp_tuning_node:main',
+            'graph_node = respeaker_mic_array.graph_node:main',
+            'audio_listener_node = respeaker_mic_array.audio_listener_node:main',
+            'google_stt = respeaker_mic_array.google_stt_node:main',
+        ],
+    },
+)
+```
+
+### Purpose
+
+The `setup.py` file defines how the ReSpeaker Microphone Array package is installed and registered within the ROS2 environment. It installs launch files, DSP resources, and registers executable nodes for audio capture, voice activity detection, direction-of-arrival estimation, and speech recognition.
+
+```
+
+### Purpose
+
+The `setup.py` file defines how the ReSpeaker Microphone Array package is installed and registered within the ROS2 environment. It installs launch files, DSP configuration resources, and registers executable ROS2 nodes used for audio acquisition, voice activity detection, speech recognition, and microphone array processing.
+
+### Registered Launch Files
+
+```text
+launch/
+└── respeaker.launch.py
+```
+
+### Included DSP Resources
+
+```text
+usb_4_mic_array/
+├── *.bin
+└── *.cfg
+```
+
+### Registered ROS2 Nodes
+
+#### Audio Processing
+
+* `audio_node`
+* `audio_listener_node`
+* `graph_node`
+
+#### Microphone Array Processing
+
+* `doa_node`
+* `vad_node`
+* `full_dsp_tuning_node`
+
+#### Speech Recognition
+
+* `google_stt`
+
+### Purpose of Each Node
+
+| Node                   | Description                                                           |
+| ---------------------- | --------------------------------------------------------------------- |
+| `audio_node`           | Captures audio from the ReSpeaker microphone array.                   |
+| `audio_listener_node`  | Receives and processes audio streams.                                 |
+| `graph_node`           | Displays real-time audio monitoring data.                             |
+| `doa_node`             | Estimates the Direction of Arrival (DOA) of sound sources.            |
+| `vad_node`             | Performs Voice Activity Detection (VAD).                              |
+| `full_dsp_tuning_node` | Configures and tunes DSP parameters of the microphone array.          |
+| `google_stt`           | Converts speech audio into text using Google Speech-to-Text services. |
