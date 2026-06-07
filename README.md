@@ -575,3 +575,92 @@ UR5e_ws/
 ### Purpose
 
 This step replaces the default ROS2 package template with the complete ReSpeaker Microphone Array implementation from the GitHub repository. The package provides audio acquisition, microphone array management, voice activity detection, and audio streaming capabilities for speech recognition and voice-controlled robotic applications.
+
+## 11. Create ReSpeaker Launch File
+
+Create a launch file for starting the ReSpeaker microphone array nodes and audio processing pipeline.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src/Respeaker_mic_array/launch
+
+nano respeaker.launch.py
+```
+
+### Description
+
+* `cd ~/UR5e_ws/src/Respeaker_mic_array/launch` : Move to the launch directory.
+* `nano respeaker.launch.py` : Create and edit the ReSpeaker launch file.
+
+### File Content
+
+Paste the following code into `respeaker.launch.py`:
+
+```python
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='respeaker_mic_array',
+            executable='audio_node',
+            name='audio_node',
+            output='screen'
+        ),
+
+        Node(
+            package='respeaker_mic_array',
+            executable='graph_node',
+            name='graph_node',
+            output='screen'
+        ),
+
+        Node(
+            package='respeaker_mic_array',
+            executable='audio_listener_node',
+            name='audio_listener_node',
+            output='screen',
+            parameters=[{
+                "sample_rate": 16000,
+                "chunk_size": 1024,
+                "use_channel": 0,
+                "debug_log": True,
+
+                "mode": 2,
+                "auto_scan_interval_sec": 0.5,
+                "auto_switch_threshold_rms": 300.0,
+                "switch_margin_ratio": 1.15,
+                "normalize_output": False,
+            }]
+        ),
+    ])
+```
+
+### Purpose
+
+This launch file starts all core nodes required for the ReSpeaker Microphone Array system. It initializes audio acquisition, audio visualization, and audio monitoring components used by the voice-controlled robotic platform.
+
+### Launched Nodes
+
+| Node                  | Description                                                                |
+| --------------------- | -------------------------------------------------------------------------- |
+| `audio_node`          | Captures audio data from the ReSpeaker microphone array.                   |
+| `graph_node`          | Displays real-time audio visualization and monitoring information.         |
+| `audio_listener_node` | Processes incoming audio streams and manages microphone channel selection. |
+
+### Usage
+
+```bash
+ros2 launch Respeaker_mic_array respeaker.launch.py
+```
+
+### Notes
+
+* The audio sample rate is configured to 16 kHz.
+* Audio is processed in chunks of 1024 samples.
+* Channel 0 is selected by default.
+* Automatic microphone monitoring and channel management are enabled.
+* Debug logging is enabled for troubleshooting and system verification.
