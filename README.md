@@ -279,7 +279,7 @@ UR5e_ws/
         ├── setup.cfg
         ├── config/
         ├── launch/
-        │   ├── *.launch.py
+        │   ├── ur5_real.launch.py
         │   └── ...
         ├── resource/
         └── UR5e_Control/
