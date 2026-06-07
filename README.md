@@ -536,3 +536,42 @@ UR5e_ws/
 
 The `Respeaker_mic_array` package provides the software framework for integrating the ReSpeaker Microphone Array with ROS2. It is responsible for audio acquisition, microphone array management, voice activity detection, and audio streaming for speech recognition systems.
 
+## 10. Replace the Generated ReSpeaker Package with the Repository Version
+
+Remove the automatically generated package and replace it with the latest ReSpeaker Microphone Array source code from the GitHub repository.
+
+### Command
+
+```bash
+cd ~/UR5e_ws/src/Respeaker_mic_array
+
+rm -rf Respeaker_mic_array
+
+git clone https://github.com/Thawatchai2003/Respeaker_mic_array.git
+```
+
+### Description
+
+* `cd ~/UR5e_ws/src/Respeaker_mic_array` : Move to the ReSpeaker package directory.
+* `rm -rf Respeaker_mic_array` : Remove the previously generated Python package directory.
+* `git clone` : Download the repository from GitHub.
+* `Respeaker_mic_array.git` : Repository containing the ReSpeaker Microphone Array source code.
+
+### Expected Directory Structure
+
+```text
+UR5e_ws/
+└── src/
+    └── Respeaker_mic_array/
+        ├── package.xml
+        ├── setup.py
+        ├── setup.cfg
+        ├── config/
+        ├── launch/
+        ├── resource/
+        └── Respeaker_mic_array/
+```
+
+### Purpose
+
+This step replaces the default ROS2 package template with the complete ReSpeaker Microphone Array implementation from the GitHub repository. The package provides audio acquisition, microphone array management, voice activity detection, and audio streaming capabilities for speech recognition and voice-controlled robotic applications.
