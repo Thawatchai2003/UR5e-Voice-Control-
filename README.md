@@ -493,3 +493,4 @@ config/
 ### Purpose
 
 This file ensures that all components of the UR5e Voice Control System are properly installed and accessible within ROS2 after building the workspace with `colcon build`.
+
